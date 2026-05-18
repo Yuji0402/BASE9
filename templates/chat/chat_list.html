@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}チャット | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:700px">
+  <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:1.5rem"><i class="bi bi-chat-dots me-2 text-primary-base9"></i>チャット</h1>
+  {% if rooms %}
+    {% for room in rooms %}
+    {% with last=room.get_last_message %}
+    <a href="{% url 'chat-room' room.pk %}" class="chat-room-item text-decoration-none mb-2 d-block" style="border-radius:12px;border:1px solid var(--border)">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center"
+             style="width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:1.2rem;font-weight:700;flex-shrink:0">
+          💬
+        </div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="fw-700" style="font-size:0.95rem">{{ room.name|default:"チャット" }}</div>
+          {% if last %}
+            <div style="font-size:0.85rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              {{ last.sender.username }}: {{ last.content }}
+            </div>
+          {% else %}
+            <div style="font-size:0.85rem;color:var(--text-muted)">メッセージはまだありません</div>
+          {% endif %}
+        </div>
+        {% if last %}
+          <div style="font-size:0.75rem;color:var(--text-muted);flex-shrink:0">{{ last.created_at|date:"m/d H:i" }}</div>
+        {% endif %}
+      </div>
+    </a>
+    {% endwith %}
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">💬</div>
+      <p>チャットルームがありません</p>
+      <p style="font-size:0.9rem;color:var(--text-muted)">試合マッチングや助っ人応募が承認されると<br>チャットルームが作成されます</p>
+      <a href="{% url 'match-list' %}" class="btn-primary-base9 mt-2">試合を探す</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

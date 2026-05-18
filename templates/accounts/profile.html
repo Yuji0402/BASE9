@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- プロフィール -->
+    <div class="col-lg-4">
+      <div class="card-base9">
+        <div class="card-body p-4 text-center">
+          {% if profile_user.avatar %}
+            <img src="{{ profile_user.avatar.url }}" alt="" class="profile-avatar mb-3">
+          {% else %}
+            <div class="profile-avatar-placeholder mx-auto mb-3">{{ profile_user.username|first|upper }}</div>
+          {% endif %}
+          <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.25rem">{{ profile_user.username }}</h2>
+          {% if profile_user.prefecture %}
+            <div class="meta-info justify-content-center mb-2">
+              <i class="bi bi-geo-alt"></i>{{ profile_user.prefecture }}
+            </div>
+          {% endif %}
+          <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
+            {% if profile_user.position %}<span class="badge-base9 badge-level">{{ profile_user.position }}</span>{% endif %}
+            {% if profile_user.level %}<span class="badge-base9 badge-open">{{ profile_user.level }}</span>{% endif %}
+          </div>
+          {% if profile_user.bio %}
+            <p style="font-size:0.9rem;color:var(--text-muted);text-align:left">{{ profile_user.bio }}</p>
+          {% endif %}
+          {% if request.user == profile_user %}
+            <a href="{% url 'profile-edit' %}" class="btn-outline-base9 w-100 mt-2" style="display:block;text-align:center">
+              <i class="bi bi-pencil me-1"></i>プロフィールを編集
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% if team %}
+      <div class="card-base9 mt-3">
+        <div class="card-body p-4">
+          <h6 class="fw-700 mb-3">所属チーム</h6>
+          <a href="{% url 'team-detail' team.pk %}" class="text-decoration-none">
+            <div class="d-flex gap-3 align-items-center">
+              {% if team.image %}
+                <img src="{{ team.image.url }}" alt="" class="team-avatar">
+              {% else %}
+                <div class="team-avatar-placeholder">{{ team.name|first }}</div>
+              {% endif %}
+              <div>
+                <div class="fw-700 text-dark">{{ team.name }}</div>
+                <div class="meta-info"><i class="bi bi-geo-alt"></i>{{ team.prefecture }}</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 投稿一覧 -->
+    <div class="col-lg-8">
+      {% if match_posts %}
+      <div class="mb-4">
+        <h5 class="fw-700 mb-3"><i class="bi bi-trophy me-2 text-primary-base9"></i>試合募集</h5>
+        {% for post in match_posts %}
+        <a href="{% url 'match-detail' post.pk %}" class="text-decoration-none d-block mb-2">
+          <div class="card-base9">
+            <div class="card-body d-flex gap-3 align-items-center">
+              <div class="match-date-badge">
+                <div class="month">{{ post.date|date:"m月" }}</div>
+                <div class="day">{{ post.date|date:"d" }}</div>
+              </div>
+              <div>
+                <div class="fw-700 text-dark">{{ post.title }}</div>
+                <div class="meta-info"><i class="bi bi-geo-alt"></i>{{ post.prefecture }}</div>
+              </div>
+              <span class="badge-base9 badge-{{ post.status }} ms-auto">{{ post.get_status_display }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if recruit_posts %}
+      <div>
+        <h5 class="fw-700 mb-3"><i class="bi bi-people me-2 text-primary-base9"></i>募集投稿</h5>
+        {% for post in recruit_posts %}
+        <a href="{% url 'recruitment-detail' post.pk %}" class="text-decoration-none d-block mb-2">
+          <div class="card-base9">
+            <div class="card-body d-flex align-items-center gap-3">
+              <span class="badge-base9 badge-{{ post.recruit_type }}">{{ post.get_recruit_type_display }}</span>
+              <div>
+                <div class="fw-700 text-dark">{{ post.title }}</div>
+                <div class="meta-info"><i class="bi bi-geo-alt"></i>{{ post.prefecture }}</div>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not match_posts and not recruit_posts %}
+      <div class="empty-state">
+        <div class="empty-icon">⚾</div>
+        <p>まだ投稿がありません</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

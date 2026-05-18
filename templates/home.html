@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}BASE9 - 草野球マッチングアプリ{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <h1 class="hero-title fade-in-up">
+          草野球の仲間と<br>繋がろう。
+        </h1>
+        <p class="hero-subtitle fade-in-up">
+          試合相手の募集から、助っ人探し、グラウンド情報まで。<br>
+          BASE9があれば、草野球がもっと楽しくなる。
+        </p>
+        <div class="d-flex gap-3 flex-wrap fade-in-up">
+          {% if user.is_authenticated %}
+            <a href="{% url 'match-create' %}" class="btn-primary-base9" style="background:#fff;color:var(--primary)!important;font-size:1rem;padding:0.75rem 2rem">
+              <i class="bi bi-plus-circle me-2"></i>試合を募集する
+            </a>
+            <a href="{% url 'match-list' %}" class="btn-outline-base9" style="border-color:rgba(255,255,255,0.6);color:#fff!important;font-size:1rem;padding:0.75rem 2rem">
+              試合を探す
+            </a>
+          {% else %}
+            <a href="{% url 'register' %}" class="btn-primary-base9" style="background:#fff;color:var(--primary)!important;font-size:1rem;padding:0.75rem 2rem">
+              無料で始める
+            </a>
+            <a href="{% url 'match-list' %}" class="btn-outline-base9" style="border-color:rgba(255,255,255,0.6);color:#fff!important;font-size:1rem;padding:0.75rem 2rem">
+              試合を探す
+            </a>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-4 mt-4" style="color:rgba(255,255,255,0.8);font-size:0.9rem">
+          <span><i class="bi bi-check-circle me-1"></i>登録無料</span>
+          <span><i class="bi bi-check-circle me-1"></i>全機能使える</span>
+          <span><i class="bi bi-check-circle me-1"></i>全国対応</span>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block text-center">
+        <img src="{% static 'img/hero-baseball.jpg' %}" alt="草野球"
+             style="border-radius:20px;width:100%;max-width:480px;object-fit:cover;height:360px;box-shadow:0 20px 60px rgba(0,0,0,0.25)"
+             onerror="this.style.display='none'">
+        <!-- ロゴ表示（画像がない場合） -->
+        <div id="hero-logo-fallback" class="d-flex flex-column align-items-center justify-content-center"
+             style="height:300px;display:none!important">
+          <img src="{% static 'img/logo.svg' %}" alt="BASE9" style="width:140px;height:140px;filter:brightness(0) invert(1);opacity:0.5">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="py-4 bg-white border-bottom">
+  <div class="container">
+    <div class="row text-center g-3">
+      <div class="col-4">
+        <div class="fw-700" style="font-size:2rem;font-weight:800;color:var(--primary)">{{ stats.teams }}+</div>
+        <div style="font-size:0.85rem;color:var(--text-muted)">登録チーム数</div>
+      </div>
+      <div class="col-4">
+        <div class="fw-700" style="font-size:2rem;font-weight:800;color:var(--primary)">{{ stats.matches }}+</div>
+        <div style="font-size:0.85rem;color:var(--text-muted)">試合募集数</div>
+      </div>
+      <div class="col-4">
+        <div class="fw-700" style="font-size:2rem;font-weight:800;color:var(--primary)">47</div>
+        <div style="font-size:0.85rem;color:var(--text-muted)">対応都道府県</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">BASE9でできること</h2>
+      <p class="section-subtitle">草野球に必要なすべてが、ここに集まっています。</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="card-base9 card-body text-center h-100">
+          <div class="mb-3" style="font-size:2.5rem">⚾</div>
+          <h5 class="fw-700 mb-2">試合マッチング</h5>
+          <p style="font-size:0.9rem;color:var(--text-muted)">日程・場所・レベルで絞り込んで、相性のいい対戦相手を見つけよう。</p>
+          <a href="{% url 'match-list' %}" class="btn-ghost mt-auto">試合を探す</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card-base9 card-body text-center h-100">
+          <div class="mb-3" style="font-size:2.5rem">🙋</div>
+          <h5 class="fw-700 mb-2">助っ人・メンバー募集</h5>
+          <p style="font-size:0.9rem;color:var(--text-muted)">当日の助っ人や、一緒に野球を楽しむ仲間を募集できます。</p>
+          <a href="{% url 'recruitment-list' %}" class="btn-ghost mt-auto">メンバーを探す</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card-base9 card-body text-center h-100">
+          <div class="mb-3" style="font-size:2.5rem">💬</div>
+          <h5 class="fw-700 mb-2">リアルタイムチャット</h5>
+          <p style="font-size:0.9rem;color:var(--text-muted)">マッチング後はそのままチャットで詳細を調整。スムーズに連絡。</p>
+          <a href="{% url 'chat-list' %}" class="btn-ghost mt-auto">チャットする</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card-base9 card-body text-center h-100">
+          <div class="mb-3" style="font-size:2.5rem">📍</div>
+          <h5 class="fw-700 mb-2">グラウンド情報</h5>
+          <p style="font-size:0.9rem;color:var(--text-muted)">全国のグラウンドを地図で検索。予約情報の共有も可能です。</p>
+          <a href="{% url 'ground-list' %}" class="btn-ghost mt-auto">グラウンドを探す</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LATEST MATCHES -->
+{% if latest_matches %}
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="section-title mb-0">最新の試合募集</h2>
+        <p class="section-subtitle mb-0">全国の草野球チームが対戦相手を探しています。</p>
+      </div>
+      <a href="{% url 'match-list' %}" class="btn-outline-base9">すべて見る</a>
+    </div>
+    <div class="row g-3">
+      {% for post in latest_matches %}
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'match-detail' post.pk %}" class="text-decoration-none">
+          <div class="card-base9">
+            <div class="card-body d-flex gap-3">
+              <div class="match-date-badge">
+                <div class="month">{{ post.date|date:"m月" }}</div>
+                <div class="day">{{ post.date|date:"d" }}</div>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge-base9 badge-open">{{ post.get_status_display }}</span>
+                  <span class="badge-base9 badge-level">{{ post.prefecture }}</span>
+                </div>
+                <h6 class="mb-1 fw-700 text-dark" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ post.title }}</h6>
+                <div class="meta-info">
+                  <i class="bi bi-shield-shaded"></i>{{ post.team.name }}
+                  <i class="bi bi-clock ms-2"></i>{{ post.get_level_display }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- LATEST TEAMS -->
+{% if latest_teams %}
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="section-title mb-0">新着チーム</h2>
+        <p class="section-subtitle mb-0">あなたの地域のチームを見つけよう。</p>
+      </div>
+      <a href="{% url 'team-list' %}" class="btn-outline-base9">すべて見る</a>
+    </div>
+    <div class="row g-3">
+      {% for team in latest_teams %}
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'team-detail' team.pk %}" class="text-decoration-none">
+          <div class="card-base9">
+            <div class="card-body d-flex gap-3 align-items-start">
+              {% if team.image %}
+                <img src="{{ team.image.url }}" alt="" class="team-avatar">
+              {% else %}
+                <div class="team-avatar-placeholder">{{ team.name|first }}</div>
+              {% endif %}
+              <div class="flex-grow-1 min-w-0">
+                <h6 class="mb-1 fw-700 text-dark">{{ team.name }}</h6>
+                <div class="meta-info mb-1">
+                  <i class="bi bi-geo-alt"></i>{{ team.prefecture }}{{ team.city }}
+                </div>
+                <div class="d-flex gap-1 flex-wrap">
+                  <span class="badge-base9 badge-level">{{ team.get_level_display }}</span>
+                  {% if team.is_recruiting %}
+                    <span class="badge-base9 badge-member">メンバー募集中</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+{% if not user.is_authenticated %}
+<section class="py-5" style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%)">
+  <div class="container text-center text-white">
+    <h2 style="font-size:2rem;font-weight:800;margin-bottom:1rem">今すぐ無料で始めよう</h2>
+    <p style="opacity:0.88;margin-bottom:2rem">登録は1分。チームを作って、試合相手を見つけよう。</p>
+    <a href="{% url 'register' %}" class="btn-primary-base9"
+       style="background:#fff;color:var(--primary)!important;font-size:1rem;padding:0.8rem 2.5rem">
+      無料アカウントを作成
+    </a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

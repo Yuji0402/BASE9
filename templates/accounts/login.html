@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}ログイン | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:440px">
+  <div class="text-center mb-4">
+    <h1 style="font-size:1.8rem;font-weight:800;color:var(--primary)">ログイン</h1>
+    <p style="color:var(--text-muted)">BASE9へようこそ</p>
+  </div>
+  <div class="card-base9">
+    <div class="card-body p-4 form-base9">
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" style="border-radius:8px;font-size:0.9rem">
+            {{ form.non_field_errors|join:", " }}
+          </div>
+        {% endif %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endfor %}
+        <button type="submit" class="btn-primary-base9 w-100 mt-2" style="font-size:1rem;padding:0.75rem">
+          ログイン
+        </button>
+      </form>
+      <div class="divider-text my-4">アカウントをお持ちでない方</div>
+      <a href="{% url 'register' %}" class="btn-outline-base9 w-100 text-center" style="display:block;text-align:center!important">
+        無料で登録する
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

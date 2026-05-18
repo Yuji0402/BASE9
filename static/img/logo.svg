@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- 太陽の光線 -->
+  <g fill="#1D4ED8" opacity="0.85">
+    <rect x="93" y="4" width="14" height="28" rx="7"/>
+    <rect x="93" y="168" width="14" height="28" rx="7"/>
+    <rect x="4" y="93" width="28" height="14" rx="7"/>
+    <rect x="168" y="93" width="28" height="14" rx="7"/>
+    <!-- 斜め光線 -->
+    <rect x="143" y="18" width="14" height="28" rx="7" transform="rotate(45 150 32)"/>
+    <rect x="143" y="154" width="14" height="28" rx="7" transform="rotate(-45 150 168)"/>
+    <rect x="18" y="18" width="14" height="28" rx="7" transform="rotate(-45 25 32)"/>
+    <rect x="18" y="154" width="14" height="28" rx="7" transform="rotate(45 25 168)"/>
+  </g>
+  <!-- 外側の円 -->
+  <circle cx="100" cy="100" r="58" fill="none" stroke="#1D4ED8" stroke-width="9"/>
+  <!-- 野球ボールの縫い目（左） -->
+  <path d="M72 65 C60 75, 58 90, 62 100 C58 110, 60 125, 72 135"
+        fill="none" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/>
+  <!-- 縫い目の細かいステッチ（左） -->
+  <path d="M65 74 L72 70 M63 84 L70 82 M63 100 L70 100 M63 116 L70 118 M65 126 L72 130"
+        fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round"/>
+  <!-- 野球ボールの縫い目（右） -->
+  <path d="M128 65 C140 75, 142 90, 138 100 C142 110, 140 125, 128 135"
+        fill="none" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/>
+  <!-- 縫い目の細かいステッチ（右） -->
+  <path d="M135 74 L128 70 M137 84 L130 82 M137 100 L130 100 M137 116 L130 118 M135 126 L128 130"
+        fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round"/>
+</svg>

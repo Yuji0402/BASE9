@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}試合を募集する | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:640px">
+  <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:2rem">試合を募集する</h1>
+  <div class="card-base9">
+    <div class="card-body p-4 form-base9">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-danger" style="font-size:0.82rem">{{ field.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn-primary-base9">募集を投稿する</button>
+          <a href="{% url 'match-list' %}" class="btn-ghost">キャンセル</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

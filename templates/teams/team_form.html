@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_create %}チーム作成{% else %}チーム編集{% endif %} | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:680px">
+  <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:2rem">
+    {% if is_create %}チームを作成{% else %}チームを編集{% endif %}
+  </h1>
+  <div class="card-base9">
+    <div class="card-body p-4 form-base9">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-4">
+            <label class="form-label">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+            {% if field.field.widget.input_type == 'checkbox' or field.name == 'activity_days' or field.name == 'is_recruiting' %}
+              {{ field }}
+            {% else %}
+              {{ field }}
+            {% endif %}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% if field.errors %}
+              <div class="text-danger" style="font-size:0.82rem">{{ field.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn-primary-base9">
+            {% if is_create %}チームを作成する{% else %}保存する{% endif %}
+          </button>
+          <a href="{% if team %}{% url 'team-detail' team.pk %}{% else %}{% url 'team-list' %}{% endif %}" class="btn-ghost">
+            キャンセル
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

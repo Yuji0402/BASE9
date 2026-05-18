@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ room.name }} | チャット | BASE9{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="card-base9" style="max-width:800px;margin:0 auto">
+    <!-- ヘッダー -->
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem">
+      <a href="{% url 'chat-list' %}" class="text-primary-base9"><i class="bi bi-arrow-left"></i></a>
+      <div>
+        <div class="fw-700">{{ room.name|default:"チャット" }}</div>
+        <div class="meta-info">
+          {% for p in other_participants %}{{ p.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- メッセージ一覧 -->
+    <div class="chat-messages" id="chat-messages">
+      {% for msg in chat_messages %}
+        <div class="d-flex flex-column {% if msg.sender == user %}align-items-end{% else %}align-items-start{% endif %}">
+          {% if msg.sender != user %}
+            <div class="meta-info mb-1" style="margin-left:0.5rem">{{ msg.sender.username }}</div>
+          {% endif %}
+          <div class="message-bubble {% if msg.sender == user %}me{% else %}other{% endif %}">
+            {{ msg.content }}
+          </div>
+          <div class="meta-info mt-1" style="font-size:0.72rem">{{ msg.created_at|date:"H:i" }}</div>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="padding:2rem">
+          <div class="empty-icon">💬</div>
+          <p>最初のメッセージを送ってみよう！</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- 入力エリア -->
+    <div class="chat-input-area">
+      <input type="text" id="chat-message-input" placeholder="メッセージを入力..." autocomplete="off">
+      <button id="chat-message-submit" class="btn-primary-base9" style="border-radius:50%;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const roomId = {{ room.pk }};
+const currentUserId = {{ user.pk }};
+const currentUsername = "{{ user.username }}";
+const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${roomId}/`);
+
+const messagesDiv = document.getElementById('chat-messages');
+const input = document.getElementById('chat-message-input');
+const submitBtn = document.getElementById('chat-message-submit');
+
+function scrollToBottom() {
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+scrollToBottom();
+
+ws.onmessage = function(e) {
+  const data = JSON.parse(e.data);
+  const isMe = data.user_id === currentUserId;
+  const wrapper = document.createElement('div');
+  wrapper.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+  wrapper.innerHTML = `
+    ${!isMe ? `<div class="meta-info mb-1" style="margin-left:0.5rem">${data.username}</div>` : ''}
+    <div class="message-bubble ${isMe ? 'me' : 'other'}">${escapeHtml(data.message)}</div>
+    <div class="meta-info mt-1" style="font-size:0.72rem">${data.timestamp}</div>
+  `;
+  // emptyStateを削除
+  const empty = messagesDiv.querySelector('.empty-state');
+  if (empty) empty.remove();
+  messagesDiv.appendChild(wrapper);
+  scrollToBottom();
+};
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function sendMessage() {
+  const msg = input.value.trim();
+  if (!msg) return;
+  ws.send(JSON.stringify({ message: msg }));
+  input.value = '';
+}
+
+submitBtn.addEventListener('click', sendMessage);
+input.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+</script>
+{% endblock %}

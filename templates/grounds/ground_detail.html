@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}{{ ground.name }} | BASE9{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card-base9 mb-4">
+        <div class="card-body p-4">
+          <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:0.5rem">{{ ground.name }}</h1>
+          <div class="meta-info mb-3"><i class="bi bi-geo-alt"></i>{{ ground.address }}</div>
+          <div class="d-flex gap-2 flex-wrap mb-4">
+            <span class="badge-base9 badge-level">{{ ground.surface }}</span>
+            {% if ground.capacity %}<span class="badge-base9 badge-open">{{ ground.capacity }}名</span>{% endif %}
+            {% if ground.fee %}<span class="badge-base9" style="background:#FEF3C7;color:#92400E">{{ ground.fee }}</span>{% endif %}
+          </div>
+          {% if ground.lat and ground.lng %}
+          <div id="map" class="mb-4"></div>
+          {% endif %}
+          {% if ground.description %}
+            <p style="line-height:1.8">{{ ground.description|linebreaks }}</p>
+          {% endif %}
+          <div class="row g-2 mt-2">
+            {% if ground.phone %}
+              <div class="col-sm-6 meta-info"><i class="bi bi-telephone"></i>{{ ground.phone }}</div>
+            {% endif %}
+            {% if ground.website %}
+              <div class="col-sm-6 meta-info"><i class="bi bi-globe"></i><a href="{{ ground.website }}" target="_blank" class="text-primary-base9">公式サイト</a></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- 予約情報 -->
+      <div class="card-base9">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-700 mb-0"><i class="bi bi-calendar-check me-2 text-primary-base9"></i>グラウンド予約情報（シェア可）</h5>
+          </div>
+          {% if reservations %}
+            {% for res in reservations %}
+            <div class="d-flex align-items-center gap-3 mb-2 pb-2 border-bottom">
+              <div class="match-date-badge" style="width:52px;height:52px">
+                <div class="month" style="font-size:0.65rem">{{ res.date|date:"m月" }}</div>
+                <div class="day" style="font-size:1.4rem">{{ res.date|date:"d" }}</div>
+              </div>
+              <div>
+                <div class="fw-600" style="font-size:0.9rem">{{ res.team.name }}</div>
+                <div class="meta-info">{{ res.start_time|time:"H:i" }}〜{{ res.end_time|time:"H:i" }}</div>
+                {% if res.note %}<div style="font-size:0.82rem;color:var(--text-muted)">{{ res.note }}</div>{% endif %}
+              </div>
+              <span class="badge-base9 badge-open ms-auto">シェア可</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p style="color:var(--text-muted);font-size:0.9rem">予約情報はまだ登録されていません</p>
+          {% endif %}
+
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'reservation-create' ground.pk %}" class="mt-3 form-base9">
+            {% csrf_token %}
+            <h6 class="fw-700 mb-2">予約情報を登録する</h6>
+            <div class="row g-2">
+              <div class="col-sm-4">
+                {{ form.date }}
+              </div>
+              <div class="col-sm-3">
+                {{ form.start_time }}
+              </div>
+              <div class="col-sm-3">
+                {{ form.end_time }}
+              </div>
+              <div class="col-sm-2">
+                <button type="submit" class="btn-primary-base9 w-100">登録</button>
+              </div>
+            </div>
+            <div class="form-check mt-2">
+              {{ form.is_shared }}
+              <label class="form-check-label" style="font-size:0.9rem">グラウンドシェアを許可する</label>
+            </div>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card-base9">
+        <div class="card-body p-4">
+          <h6 class="fw-700 mb-3">グラウンド情報</h6>
+          <table style="width:100%;font-size:0.9rem">
+            <tr><td style="color:var(--text-muted);padding:0.4rem 0">種別</td><td class="fw-600">{{ ground.surface }}</td></tr>
+            {% if ground.capacity %}<tr><td style="color:var(--text-muted);padding:0.4rem 0">収容</td><td class="fw-600">{{ ground.capacity }}名</td></tr>{% endif %}
+            {% if ground.fee %}<tr><td style="color:var(--text-muted);padding:0.4rem 0">料金</td><td class="fw-600">{{ ground.fee }}</td></tr>{% endif %}
+            <tr><td style="color:var(--text-muted);padding:0.4rem 0">登録者</td><td class="fw-600">{{ ground.added_by.username|default:"-" }}</td></tr>
+          </table>
+          {% if user.is_authenticated %}
+            <a href="{% url 'match-create' %}" class="btn-primary-base9 w-100 mt-3" style="display:block;text-align:center">
+              <i class="bi bi-trophy me-1"></i>このグラウンドで試合募集
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if ground.lat and ground.lng %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([{{ ground.lat }}, {{ ground.lng }}], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+L.marker([{{ ground.lat }}, {{ ground.lng }}])
+  .addTo(map)
+  .bindPopup('<strong>{{ ground.name }}</strong>').openPopup();
+</script>
+{% endif %}
+{% endblock %}

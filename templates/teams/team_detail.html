@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}{{ team.name }} | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- メイン -->
+    <div class="col-lg-8">
+      <div class="card-base9 mb-4">
+        {% if team.image %}
+          <img src="{{ team.image.url }}" class="card-img-top" alt="{{ team.name }}" style="height:260px">
+        {% endif %}
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:0.5rem">{{ team.name }}</h1>
+              <div class="meta-info">
+                <i class="bi bi-geo-alt"></i>{{ team.prefecture }}{% if team.city %} {{ team.city }}{% endif %}
+                <i class="bi bi-people ms-3"></i>{{ team.get_member_count }}名
+                <i class="bi bi-calendar ms-3"></i>{{ team.created_at|date:"Y年m月" }}〜
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge-base9 badge-level">{{ team.get_level_display }}</span>
+              {% if team.is_recruiting %}<span class="badge-base9 badge-member">メンバー募集中</span>{% endif %}
+            </div>
+          </div>
+
+          {% if team.activity_days %}
+            <div class="d-flex gap-1 flex-wrap mb-3">
+              {% for day in team.activity_days.split|join:',' %}{% endfor %}
+              <span class="meta-info"><i class="bi bi-clock me-1"></i>活動日：{{ team.activity_days }}</span>
+            </div>
+          {% endif %}
+
+          <p style="line-height:1.8;color:var(--text-dark)">{{ team.description|linebreaks }}</p>
+
+          <!-- アクション -->
+          {% if user.is_authenticated %}
+            {% if team.captain == user %}
+              <div class="d-flex gap-2 mt-3">
+                <a href="{% url 'team-edit' team.pk %}" class="btn-primary-base9"><i class="bi bi-pencil me-1"></i>チームを編集</a>
+                <a href="{% url 'match-create' %}" class="btn-ghost"><i class="bi bi-plus me-1"></i>試合を募集する</a>
+              </div>
+            {% elif user_membership %}
+              <div class="mt-3">
+                {% if user_membership.role == 'pending' %}
+                  <span class="badge-base9 badge-confirmed">参加申請中</span>
+                {% elif user_membership.role == 'member' %}
+                  <span class="badge-base9 badge-open">メンバー</span>
+                {% endif %}
+              </div>
+            {% elif team.is_recruiting %}
+              <form method="post" action="{% url 'team-join' team.pk %}" class="mt-3">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary-base9">参加を申請する</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- 試合募集 -->
+      {% if match_posts %}
+      <div class="mb-4">
+        <h5 class="fw-700 mb-3"><i class="bi bi-trophy me-2 text-primary-base9"></i>このチームの試合募集</h5>
+        {% for post in match_posts %}
+        <a href="{% url 'match-detail' post.pk %}" class="text-decoration-none d-block mb-2">
+          <div class="card-base9">
+            <div class="card-body d-flex gap-3 align-items-center">
+              <div class="match-date-badge">
+                <div class="month">{{ post.date|date:"m月" }}</div>
+                <div class="day">{{ post.date|date:"d" }}</div>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-700 text-dark">{{ post.title }}</div>
+                <div class="meta-info"><i class="bi bi-geo-alt"></i>{{ post.venue|default:post.prefecture }}</div>
+              </div>
+              <span class="badge-base9 badge-open">{{ post.get_status_display }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- サイドバー：メンバー -->
+    <div class="col-lg-4">
+      <div class="card-base9">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-people me-2"></i>メンバー（{{ members|length }}名）</h5>
+          {% for m in members %}
+          <a href="{% url 'profile' m.user.username %}" class="text-decoration-none d-flex align-items-center gap-2 mb-3">
+            {% if m.user.avatar %}
+              <img src="{{ m.user.avatar.url }}" alt="" class="rounded-circle" style="width:40px;height:40px;object-fit:cover">
+            {% else %}
+              <div class="rounded-circle d-flex align-items-center justify-content-center"
+                   style="width:40px;height:40px;background:var(--primary);color:#fff;font-weight:700;font-size:0.9rem;flex-shrink:0">
+                {{ m.user.username|first|upper }}
+              </div>
+            {% endif %}
+            <div>
+              <div class="fw-600 text-dark" style="font-size:0.9rem">{{ m.user.username }}</div>
+              {% if m.role == 'captain' %}<div style="font-size:0.75rem;color:var(--primary)">キャプテン</div>{% endif %}
+            </div>
+          </a>
+          {% endfor %}
+
+          <!-- 申請管理（キャプテンのみ） -->
+          {% if team.captain == user %}
+            {% with pending=team.memberships.filter %}
+              {% for m in team.memberships.all %}
+                {% if m.role == 'pending' %}
+                  {% if forloop.first %}
+                    <hr><h6 class="fw-700 mt-3 mb-2">参加申請</h6>
+                  {% endif %}
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span style="font-size:0.9rem">{{ m.user.username }}</span>
+                    <a href="{% url 'membership-action' team.pk m.user.pk 'approve' %}" class="btn-ghost" style="padding:0.2rem 0.6rem;font-size:0.8rem">承認</a>
+                    <a href="{% url 'membership-action' team.pk m.user.pk 'reject' %}" class="btn-ghost" style="padding:0.2rem 0.6rem;font-size:0.8rem;color:var(--danger)">却下</a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

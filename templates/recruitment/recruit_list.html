@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}助っ人・メンバー募集 | BASE9{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="section-title">助っ人・メンバー募集</h1>
+      <p class="section-subtitle">チームに入りたい・助っ人したい人を探そう</p>
+    </div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'recruitment-create' %}" class="btn-primary-base9"><i class="bi bi-plus-circle me-1"></i>募集を投稿</a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="card-base9 mb-4">
+    <div class="card-body p-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <input type="text" name="q" value="{{ q }}" placeholder="キーワード" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <select name="type" class="form-select">
+            <option value="">タイプ（すべて）</option>
+            <option value="helper" {% if selected_type == "helper" %}selected{% endif %}>助っ人募集</option>
+            <option value="member" {% if selected_type == "member" %}selected{% endif %}>メンバー募集</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select name="prefecture" class="form-select">
+            <option value="">都道府県（すべて）</option>
+            {% for val, label in prefecture_choices %}
+              <option value="{{ val }}" {% if selected_prefecture == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn-primary-base9 w-100">検索</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {% if posts %}
+    <div class="row g-3">
+      {% for post in posts %}
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'recruitment-detail' post.pk %}" class="text-decoration-none">
+          <div class="card-base9 h-100">
+            <div class="card-body">
+              <div class="d-flex gap-2 mb-2">
+                <span class="badge-base9 badge-{{ post.recruit_type }}">{{ post.get_recruit_type_display }}</span>
+                <span class="badge-base9 badge-level">{{ post.prefecture }}</span>
+              </div>
+              <h5 class="fw-700 text-dark mb-2">{{ post.title }}</h5>
+              <div class="meta-info mb-1">
+                <i class="bi bi-person"></i>
+                <a href="{% url 'profile' post.posted_by.username %}" class="text-decoration-none text-primary-base9">
+                  {{ post.posted_by.username }}
+                </a>
+                {% if post.team %}<span class="ms-1">（{{ post.team.name }}）</span>{% endif %}
+              </div>
+              <div class="d-flex gap-1 flex-wrap mt-2">
+                <span class="badge-base9 badge-level">{{ post.get_position_display }}</span>
+                <span class="badge-base9 badge-open">{{ post.get_level_display }}</span>
+              </div>
+              {% if post.description %}
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.75rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">
+                  {{ post.description }}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🙋</div>
+      <p>該当する募集が見つかりませんでした</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'recruitment-create' %}" class="btn-primary-base9">募集を投稿する</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
